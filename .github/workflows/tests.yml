@@ -15,11 +15,16 @@ on:  # yamllint disable-line rule:truthy
       - release*
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+  security-events: write
+
 env:
   GO_VERSION: "1.26"
   KIND_VERSION: "0.31.0"
   GO111MODULE: "on"
-  IMAGE: "quay.io/backube/snapscheduler"
+  IMAGE: "ghcr.io/niledatabase/snapscheduler"
 
 jobs:
   lint:
@@ -281,13 +286,8 @@ jobs:
           path: /tmp
           pattern: container-*
 
-      - name: Login to registry
-        # If the registry server is specified in the image name, we use that.
-        # If the server isn't in the image name, default to docker.io
-        run: |
-          [[ "${IMAGE}" =~ ^([^/]+)/[^/]+/[^/]+ ]] && REGISTRY="${BASH_REMATCH[1]}" || REGISTRY="docker.io"
-          echo "Attempting docker login to: ${REGISTRY}"
-          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ secrets.REGISTRY_USERNAME }}" --password-stdin ${REGISTRY}
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
       - name: Determine tag
         id: tag

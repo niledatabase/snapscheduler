@@ -248,6 +248,7 @@ jobs:
       - name: Start operator
         run: |
           bin/helm install --create-namespace -n backube-snapscheduler \
+              --set image.repository=${IMAGE} \
               --set image.tagOverride=ci-build \
               --set metrics.disableAuth=true \
               --wait --timeout=300s \
